@@ -91,6 +91,7 @@ let
 
         mkdir -p $out/bin
         makeWrapper ${pythonEnv}/bin/uvicorn $out/bin/odysseus \
+          --chdir "$out/share/odysseus" \
           --set PYTHONUNBUFFERED "1" \
           --set PYTHONPATH "$out/share/odysseus" \
           --set-default ODYSSEUS_DATA_DIR "$out/share/odysseus/data" \
