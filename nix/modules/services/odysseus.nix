@@ -118,6 +118,15 @@ in
           };
         };
 
+        ntfy = {
+          enable = mkEnableOption "bundled ntfy push notification server";
+          port = mkOption {
+            type = types.port;
+            default = 8091;
+            description = "Port for the bundled ntfy server. Loopback-only.";
+          };
+        };
+
         dataDir = mkOption {
           type = types.path;
           default = "/var/lib/odysseus";
@@ -163,6 +172,21 @@ in
             message = "services.odysseus.searxng.secretKey must be changed from its default before enabling SearXNG.";
           }
         ];
+
+        systemd.services.odysseus-ntfy = mkIf cfg.ntfy.enable {
+          description = "Odysseus ntfy push notification server";
+          after = [ "network.target" ];
+          wantedBy = [ "multi-user.target" ];
+
+          serviceConfig = {
+            Type = "simple";
+            User = cfg.user;
+            Group = cfg.group;
+            ExecStart = "${pkgs.ntfy-sh}/bin/ntfy serve --listen-http 127.0.0.1:${toString cfg.ntfy.port}";
+            Restart = "on-failure";
+            RestartSec = "3s";
+          };
+        };
 
         services.searx = mkIf cfg.searxng.enable {
           enable = true;
@@ -237,6 +261,9 @@ in
           }
           // optionalAttrs cfg.searxng.enable {
             SEARXNG_INSTANCE = "http://127.0.0.1:${toString cfg.searxng.port}";
+          }
+          // optionalAttrs cfg.ntfy.enable {
+            NTFY_BASE_URL = "http://127.0.0.1:${toString cfg.ntfy.port}";
           }
           // cfg.extraEnvironmentVariables;
 
@@ -380,6 +407,15 @@ in
           };
         };
 
+        ntfy = {
+          enable = mkEnableOption "bundled ntfy push notification server";
+          port = mkOption {
+            type = types.port;
+            default = 8091;
+            description = "Port for the bundled ntfy server. Loopback-only.";
+          };
+        };
+
         dataDir = mkOption {
           type = types.path;
           default = "/var/lib/odysseus";
@@ -420,6 +456,18 @@ in
             message = "services.odysseus.searxng.secretKey must be changed from its default before enabling SearXNG.";
           }
         ];
+
+        launchd.daemons.odysseus-ntfy = mkIf cfg.ntfy.enable {
+          command = ''
+            #!/bin/sh
+            exec ${pkgs.ntfy-sh}/bin/ntfy serve --listen-http 127.0.0.1:${toString cfg.ntfy.port}
+          '';
+
+          serviceConfig = {
+            KeepAlive = true;
+            RunAtLoad = true;
+          };
+        };
 
         launchd.daemons.odysseus-searxng = mkIf cfg.searxng.enable {
           command =
@@ -527,6 +575,9 @@ in
             }
             // optionalAttrs cfg.searxng.enable {
               SEARXNG_INSTANCE = "http://127.0.0.1:${toString cfg.searxng.port}";
+            }
+            // optionalAttrs cfg.ntfy.enable {
+              NTFY_BASE_URL = "http://127.0.0.1:${toString cfg.ntfy.port}";
             }
             // cfg.extraEnvironmentVariables;
           };
