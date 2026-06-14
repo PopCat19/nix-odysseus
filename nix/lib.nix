@@ -64,6 +64,7 @@ let
           pillow
           croniter
           python-magic
+          nh3
           pytest
           pytest-asyncio
         ])
