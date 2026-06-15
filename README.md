@@ -67,7 +67,7 @@ services.odysseus = { enable = true; };
 | `host` | str | `"0.0.0.0"` | Bind address |
 | `dataDir` | path | `"/var/lib/odysseus"` | Persistent data root |
 | `environmentFile` | nullOr path | `null` | Secrets file path |
-| `extraEnvironmentVariables` | attrsOf str | `{}` | Extra env vars for app |
+| `extraEnvironmentVariables` | attrsOf str | `{}` | Extra env vars for app. Set `ODYSSEUS_ADMIN_PASSWORD` here to pre-seed the admin password on first boot. |
 | `extraPythonPackages` | functionTo (listOf package) | `ps: []` | Extra Python deps (e.g., `ps: [ps.hf-transfer ps.rembg]`) |
 | `chromaPort` | port | `8100` | ChromaDB vector DB port |
 | `openFirewall` | bool | `false` | Open app port in firewall |
@@ -79,7 +79,30 @@ services.odysseus = { enable = true; };
 
 </details>
 
-## Structure
+## Admin password
+
+On first boot, `setup.py` runs the admin account flow with this priority:
+
+1. `ODYSSEUS_ADMIN_USER` + `ODYSSEUS_ADMIN_PASSWORD` env vars → use directly
+2. Interactive TTY → prompts for username + password
+3. Non-interactive (systemd, Docker, CI) → generates a random password, prints it to stderr
+
+The random password is logged by systemd. Retrieve it:
+```bash
+journalctl -u odysseus --no-pager | grep 'Temporary password'
+```
+
+Or set it declaratively:
+```nix
+services.odysseus.extraEnvironmentVariables = {
+  ODYSSEUS_ADMIN_PASSWORD = "your-secure-password";
+};
+```
+
+Set this **before** first boot. If `auth.json` already exists, the env var is ignored.
+To reset: stop the service, delete `/var/lib/odysseus/data/auth.json`, set the env var, start.
+
+## Architecture
 
 ```
 nix/lib.nix                       Shared kernel: mkRuntimeLibs, mkPythonEnv, mkOdysseusPackage, mkContainer
@@ -99,7 +122,7 @@ nix/modules/checks/integration.nix Integration tests
 
 </details>
 
-## Upstream source
+## Built-in MCP servers
 
 Pins `pewdiepie-archdaemon/odysseus/dev`. The upstream repo evolves rapidly — pin to a specific commit in `flake.nix` for reproducible deployments:
 
