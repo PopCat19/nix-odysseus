@@ -90,9 +90,13 @@ let
         mkdir -p $out/share/odysseus
         cp -r . $out/share/odysseus/
 
-        # setup.py hardcodes os.path.join(BASE_DIR, "logs") which hits the
-        # read-only Nix store. The NixOS module already creates logs in the
-        # dataDir. Delete that directory entry from the list.
+        # setup.py writes .env and logs to BASE_DIR (Nix store, read-only).
+        # Redirect BASE_DIR to ODYSSEUS_DATA_DIR so writes land in the
+        # stateful data directory instead of the immutable store.
+        substituteInPlace $out/share/odysseus/setup.py \
+          --replace \
+          'BASE_DIR = os.path.dirname(os.path.abspath(__file__))' \
+          'BASE_DIR = os.environ.get("ODYSSEUS_DATA_DIR", os.path.dirname(os.path.abspath(__file__)))'
         sed -i '/os\.path\.join(BASE_DIR, "logs")/d' $out/share/odysseus/setup.py
 
         mkdir -p $out/bin
