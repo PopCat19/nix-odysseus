@@ -124,6 +124,28 @@ nix/modules/checks/integration.nix Integration tests
 
 ## Built-in MCP servers
 
+Odysseus ships several Model Context Protocol servers activated at startup:
+
+| Server | Tools | Description |
+|---|---|---|
+| Memory | 1 | Persistent memory storage and recall for conversations |
+| RAG | 1 | Retrieval-augmented generation over uploaded documents |
+| Image Generation | 1 | Image creation via configured backend |
+| Email | 14 | IMAP/SMTP email sending, reading, triage, and scheduling |
+| Browser | varies | Web browsing via Playwright (`npx @playwright/mcp`). Optional; requires `npx` on PATH. |
+
+The browser server is the only optional one. Install its dependency:
+```bash
+npx -y @playwright/mcp@latest --version
+```
+
+Tools are indexed at startup. Check the log:
+```bash
+journalctl -u odysseus --no-pager | grep 'Built-in MCP'
+```
+
+## Upstream source
+
 Pins `pewdiepie-archdaemon/odysseus/dev`. The upstream repo evolves rapidly — pin to a specific commit in `flake.nix` for reproducible deployments:
 
 ```nix
