@@ -5,7 +5,7 @@
 # native Nix derivation (no pip/venv/Docker at runtime) with bundled ChromaDB,
 # optional SearXNG, and optional llama.cpp.
 {
-  description = "Odysseus AI workspace — standalone Nix flake";
+  description = "Odysseus AI workspace: standalone Nix flake";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";

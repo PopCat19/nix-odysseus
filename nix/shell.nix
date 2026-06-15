@@ -3,8 +3,8 @@
 # Purpose: Odysseus development shell with process-compose and Playwright wiring.
 #
 # Parameters (both optional):
-#   src         — path to the odysseus source checkout (defaults to ../.)
-#   pythonOnly  — if true, skip process-compose/Playwright; provide only the Python env
+#   src        : path to the odysseus source checkout (defaults to ../.)
+#   pythonOnly : if true, skip process-compose/Playwright; provide only the Python env
 {
   pkgs ? import <nixpkgs> { },
   src ? ../.,

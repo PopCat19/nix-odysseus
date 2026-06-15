@@ -1,8 +1,8 @@
 # nix-odysseus
 
-Standalone Nix flake for the [Odysseus AI workspace](https://github.com/pewdiepie-archdaemon/odysseus) — a self-hosted AI platform with chat, agents, memory, documents, research, and email. Rebased from upstream [PR #1523](https://github.com/pewdiepie-archdaemon/odysseus/pull/1523).
+Standalone Nix flake for the [Odysseus AI workspace](https://github.com/pewdiepie-archdaemon/odysseus): a self-hosted AI platform with chat, agents, memory, documents, research, and email. Rebased from upstream [PR #1523](https://github.com/pewdiepie-archdaemon/odysseus/pull/1523).
 
-Provides a native Nix derivation — no pip, venv, or Docker at runtime.
+Provides a native Nix derivation: no pip, venv, or Docker at runtime.
 
 ## Quickstart
 
@@ -47,17 +47,17 @@ services.odysseus = { enable = true; };
 
 ## Flake outputs
 
-- `packages.default` — the app derivation with `odysseus`, `odysseus-setup`, `odysseus-chroma` wrappers
-- `packages.container` — layered OCI image (`dockerTools.buildLayeredImage`)
-- `devShells.default` — dev shell with process-compose, Playwright, all build tools
-- `devShells.python` — Python environment only (no Node.js, no Playwright)
-- `nixosModules.default` — NixOS systemd service module
-- `darwinModules.default` — nix-darwin launchd service module
-- `checks` — NixOS VM test, container validation, Darwin integration test
+- `packages.default`: the app derivation with `odysseus`, `odysseus-setup`, `odysseus-chroma` wrappers
+- `packages.container`: layered OCI image (`dockerTools.buildLayeredImage`)
+- `devShells.default`: dev shell with process-compose, Playwright, all build tools
+- `devShells.python`: Python environment only (no Node.js, no Playwright)
+- `nixosModules.default`: NixOS systemd service module
+- `darwinModules.default`: nix-darwin launchd service module
+- `checks`: NixOS VM test, container validation, Darwin integration test
 
 ## Declarative vs mutable
 
-Nix manages the service — the app owns its runtime data. This is the same split every
+Nix manages the service: the app owns its runtime data. This is the same split every
 self-hosted app has:
 
 **Nix (declarative, survives rebuilds):**
@@ -92,7 +92,7 @@ on next boot. Everything else is created through the UI.
 
 ### Nix derivation patch
 
-The derivation patches `setup.py` at build time — redirects `BASE_DIR` to
+The derivation patches `setup.py` at build time: redirects `BASE_DIR` to
 `ODYSSEUS_DATA_DIR` so `.env` and `logs/` land in the stateful data directory
 instead of the immutable `/nix/store`. This is necessary because `setup.py` runs
 as `ExecStartPre` under the `odysseus` system user and must not attempt writes
@@ -157,11 +157,11 @@ nix/modules/checks/integration.nix Integration tests
 <details>
 <summary>Modules and boundaries</summary>
 
-- **Shared kernel** — `nix/lib.nix`: package builders consumed by shell, service modules, and checks
-- **Context boundary** — `flake.nix`: wires source input, passes `src` to modules
-- **Service modules** — `nix/modules/services/`: system configuration for systemd and launchd
-- **Integration tests** — `nix/modules/checks/`: VM test, container validation, Darwin process check
-- **Dev shell** — `nix/shell.nix`: development environment, imports shared kernel
+- **Shared kernel**: `nix/lib.nix`: package builders consumed by shell, service modules, and checks
+- **Context boundary**: `flake.nix`: wires source input, passes `src` to modules
+- **Service modules**: `nix/modules/services/`: system configuration for systemd and launchd
+- **Integration tests**: `nix/modules/checks/`: VM test, container validation, Darwin process check
+- **Dev shell**: `nix/shell.nix`: development environment, imports shared kernel
 
 </details>
 
@@ -189,7 +189,7 @@ journalctl -u odysseus --no-pager | grep 'Built-in MCP'
 
 ## Upstream source
 
-Pins `pewdiepie-archdaemon/odysseus/dev`. The upstream repo evolves rapidly — pin to a specific commit in `flake.nix` for reproducible deployments:
+Pins `pewdiepie-archdaemon/odysseus/dev`. The upstream repo evolves rapidly: pin to a specific commit in `flake.nix` for reproducible deployments:
 
 ```nix
 inputs.odysseus-src = {
