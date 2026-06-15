@@ -90,6 +90,12 @@ let
         mkdir -p $out/share/odysseus
         cp -r . $out/share/odysseus/
 
+        # setup.py hardcodes os.path.join(BASE_DIR, "logs") which hits the
+        # read-only Nix store. The NixOS module already creates logs in the
+        # dataDir. Patch the dir list to skip the store logs entry.
+        substituteInPlace $out/share/odysseus/setup.py \
+          --replace-fail 'os.path.join(BASE_DIR, "logs"),' ''
+
         mkdir -p $out/bin
         makeWrapper ${pythonEnv}/bin/uvicorn $out/bin/odysseus \
           --chdir "$out/share/odysseus" \
