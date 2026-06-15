@@ -55,6 +55,49 @@ services.odysseus = { enable = true; };
 - `darwinModules.default` — nix-darwin launchd service module
 - `checks` — NixOS VM test, container validation, Darwin integration test
 
+## Declarative vs mutable
+
+Nix manages the service — the app owns its runtime data. This is the same split every
+self-hosted app has:
+
+**Nix (declarative, survives rebuilds):**
+
+| Concern | Option |
+|---|---|
+| Port, host, firewall | `port`, `host`, `openFirewall` |
+| Data directory | `dataDir` |
+| Secrets file | `environmentFile` |
+| Admin password | `extraEnvironmentVariables.ODYSSEUS_ADMIN_PASSWORD` |
+| LLM endpoint | `extraEnvironmentVariables.LLM_HOST` |
+| Extra Python deps | `extraPythonPackages` |
+| ChromaDB port | `chromaPort` |
+| SearXNG + key | `searxng.enable` / `.port` / `.secretKey` |
+| llama.cpp backend | `llamaCpp.enable` / `.package` |
+| ntfy notifications | `ntfy.enable` |
+
+**App (mutable, lives in `dataDir`):**
+
+| State | Location |
+|---|---|
+| Chat history | `app.db` (SQLite) |
+| Agent memory | `memory.json` + `memory_vectors/` |
+| Uploaded documents | `uploads/` + `personal_docs/` |
+| ChromaDB vectors | `data/chroma/` (separate chroma service) |
+| Email config (IMAP/SMTP accounts) | `app.db` (configured via UI) |
+| Theme, model prefs | `app.db` (configured via Settings) |
+| User accounts | `auth.json` |
+
+Reset mutable state: stop the service, delete `dataDir`, start. Auth will regenerate
+on next boot. Everything else is created through the UI.
+
+### Nix derivation patch
+
+The derivation patches `setup.py` at build time — redirects `BASE_DIR` to
+`ODYSSEUS_DATA_DIR` so `.env` and `logs/` land in the stateful data directory
+instead of the immutable `/nix/store`. This is necessary because `setup.py` runs
+as `ExecStartPre` under the `odysseus` system user and must not attempt writes
+to the store.
+
 ## Module options
 
 <details>
