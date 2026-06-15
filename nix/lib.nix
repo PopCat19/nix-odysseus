@@ -92,9 +92,8 @@ let
 
         # setup.py hardcodes os.path.join(BASE_DIR, "logs") which hits the
         # read-only Nix store. The NixOS module already creates logs in the
-        # dataDir. Patch the dir list to skip the store logs entry.
-        substituteInPlace $out/share/odysseus/setup.py \
-          --replace-fail 'os.path.join(BASE_DIR, "logs"),' ''
+        # dataDir. Delete that directory entry from the list.
+        sed -i '/os\.path\.join(BASE_DIR, "logs")/d' $out/share/odysseus/setup.py
 
         mkdir -p $out/bin
         makeWrapper ${pythonEnv}/bin/uvicorn $out/bin/odysseus \
